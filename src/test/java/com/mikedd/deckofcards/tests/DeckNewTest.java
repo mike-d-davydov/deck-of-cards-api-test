@@ -21,6 +21,10 @@ import java.util.logging.Logger;
 
 // assumes the current class is called MyLogger
 
+/**
+ * These tests cover "/deck/new" endpoint scenarios.
+ * Please note, that "/deck/new/shuffle" is out of scope.
+ */
 
 public class DeckNewTest {
     private final static Logger LOGGER = Logger.getLogger(DeckNewTest.class.getSimpleName());
@@ -132,6 +136,9 @@ public class DeckNewTest {
 
     /* Edge case cases */
 
+    // Invalid data:
+    //    1) Jokers enabled - invalid value type
+    //    2) Unknown parameter
 
 
 }

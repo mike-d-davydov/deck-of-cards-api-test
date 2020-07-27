@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test;
 import static com.mikedd.env.Environment.getBaseUrl;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasLength;
+import static org.hamcrest.Matchers.*;
 
 public class DrawCardsTest {
     String deckId = "";
@@ -25,20 +24,21 @@ public class DrawCardsTest {
 
     @Test
     public void testDrawOneCardNewDeck(){
-        // https:/deckofcardsapi.com/deck/<<deck_id>>/draw/?count=2
-
-
-        Response response = get(basePath + "/deck/$" + deckId + "/draw?count=1");
+        Response response = get(getBaseUrl() + "/deck/" + deckId + "/draw?count=1");
+        response.prettyPrint();
         response.then()
                 .statusCode(200)
                 .body("success", equalTo(true))
-                .body("cards", hasLength((1)))
-                .body("deckId", equalTo(deckId))
+                .body("cards", iterableWithSize(1))
+                .body("deck_id", equalTo(deckId))
                 .body("remaining", equalTo(51));
 
+
         Validations.validateCard(response.body(), "cards[0]");
-
-//        Object value = response
-
     }
+
+    // Edge cases: draw more cards than there is in a deck - 53 cards out of 52 deck , 2 cards out of 1, 1 card out of 0
+    // Unknown deck
+    // Unknown parameter(s)
+    // Wrong parameter type for count
 }
