@@ -2,35 +2,36 @@ package com.mikedd.deckofcards.tests;
 
 import com.google.common.collect.ImmutableMap;
 import com.mikedd.matchers.Validations;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+
+import java.util.Map;
+import java.util.logging.Logger;
 
 import static co.unruly.matchers.Java8Matchers.where;
 import static com.mikedd.env.Environment.getBaseUrl;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
-import static java.util.Collections.EMPTY_MAP;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-
-import java.util.Map;
-import java.util.logging.Logger;
-
-// assumes the current class is called MyLogger
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.oneOf;
 
 /**
  * These tests cover "/deck/new" endpoint scenarios.
  * Please note, that "/deck/new/shuffle" is out of scope.
+ * For other scope considerations please refer to README.md
  */
 
+@DisplayName("New deck (/deck/new/) tests")
 public class DeckNewTest {
     private final static Logger LOGGER = Logger.getLogger(DeckNewTest.class.getSimpleName());
 
     public static void validateNewDeckResponse(Response response, boolean jokersEnabled) {
-        LOGGER.info("** Verifying new deck response (jockersEnabled:" + jokersEnabled + ") **" );
+        LOGGER.info("** Verifying new deck response (jockersEnabled:" + jokersEnabled + ") **");
         LOGGER.info("Status code:" + response.statusCode());
         LOGGER.info("Status line:" + response.statusLine());
         LOGGER.info("Response:" + response.body().asString());
@@ -45,15 +46,11 @@ public class DeckNewTest {
         LOGGER.info("** Verification: done");
     }
 
-    public static void validateErrorResponse(Response response, int expectedCode, String pattern) {
-        assertThat(response.statusCode(), is(expectedCode));
-        // TODO: will this work? Let's see
-        assertThat(response.body().asString(), matchesPattern(pattern));
-    }
 
     // Happy path scenarios (GET)
 
     @Test
+    @DisplayName("GET deck/new, no params")
     public void testGetNewDeckWithNoParams() {
         validateNewDeckResponse(
                 get(getBaseUrl() + "/deck/new/"),
@@ -62,6 +59,7 @@ public class DeckNewTest {
     }
 
     @Test
+    @DisplayName("GET deck/new, jokers are enabled")
     public void testGetNewDeckWithJokersEnabled() {
         validateNewDeckResponse(
                 get(getBaseUrl() + "/deck/new?jokers_enabled=true"),
@@ -70,6 +68,7 @@ public class DeckNewTest {
     }
 
     @Test
+    @DisplayName("GET deck/new, jokers are explicitly disabled (jokers_enabled=false)")
     public void testGetNewDeckWithJokersExplicitlyDisabled() {
         validateNewDeckResponse(
                 get(getBaseUrl() + "/deck/new?jokers_enabled=false"),
@@ -77,9 +76,7 @@ public class DeckNewTest {
         );
     }
 
-    /*
-    Happy path scenarios: POST endpoint
-    */
+    //  Happy path scenarios: POST endpoint
 
     // TODO: Tests are currently failing. POST API is not well documented
     //  Need to find right way of posting:
@@ -95,19 +92,24 @@ public class DeckNewTest {
      * @param params parameters
      * @return request spec
      */
-    private RequestSpecification givenPost(Map<String, Object> params){
+    private RequestSpecification givenPost(Map<String, Object> params) {
         RequestSpecification reqSpec = given().contentType("multipart/form-data");
-        for (Map.Entry<String,Object> entry:params.entrySet()){
-            reqSpec.multiPart(entry.getKey(), entry.getValue() );
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            reqSpec.multiPart(entry.getKey(), entry.getValue());
         }
         return reqSpec;
     }
 
+    // I had to "disable" POST tests, because we don't know if they are correct or not (for the lack of
+    //   documentation). You can still run them with relevant maven profile
+
     @Test
-    @Disabled("Test is failing with HTTP 301")
+    @EnabledIfSystemProperty(
+            named = "runDisabled", matches = "true")
+    @DisplayName("POST deck/new with no cards: As of 24 Apr 2020 commit, test is failing with HTTP 301")
     public void testPostNewDeckWithNoParams() {
         validateNewDeckResponse(
-                givenPost(EMPTY_MAP)
+                givenPost(ImmutableMap.of())
                         .post(getBaseUrl() + "/deck/new"),
                 false
         );
@@ -115,7 +117,8 @@ public class DeckNewTest {
 
 
     @Test
-    @Disabled("Test is failing with HTTP 403: CSRF verification failed. Request aborted.")
+    @EnabledIfSystemProperty(named = "runDisabled", matches = "true")
+    @DisplayName("POST deck/new with jokers enabled: As of 24 Apr 2020 commit, test is failing with HTTP 403: CSRF verification failed. Request aborted.")
     public void testPostNewDeckWithJokersEnabled() {
         validateNewDeckResponse(
                 givenPost(ImmutableMap.of("jokers_enabled", true))
@@ -125,7 +128,8 @@ public class DeckNewTest {
     }
 
     @Test
-    @Disabled("Test is failing with HTTP 403: CSRF verification failed. Request aborted.")
+    @EnabledIfSystemProperty(named = "runDisabled", matches = "true")
+    @DisplayName("POST deck/new with jokers excplicitly disabled: As of 24 Apr 2020 commit, test is failing with HTTP 403: CSRF verification failed. Request aborted.")
     public void testPostNewDeckWithJokersExplicitlyDisabled() {
         validateNewDeckResponse(
                 givenPost(ImmutableMap.of("jokers_enabled", false))
@@ -134,11 +138,20 @@ public class DeckNewTest {
         );
     }
 
-    /* Edge case cases */
+    @Test
+    @Tag("failing")
+    public void testDrawCardsUsingInvalidTypeForJokersEnabledParameter() {
+        Response response = get(getBaseUrl() + "/deck/new/?jokers_enabled=3");
+        // TODO: We don't know how valid error response should look like
+        Validations.validateErrorResponse(response, 400, ".+");
+    }
 
-    // Invalid data:
-    //    1) Jokers enabled - invalid value type
-    //    2) Unknown parameter
 
-
+    @Test
+    @Tag("failing")
+    public void testDrawCardsUsingInvalidParameterName() {
+        Response response = get(getBaseUrl() + "/deck/new/?jokers_disabled=true");
+        // TODO: We don't know how valid error response should look like
+        Validations.validateErrorResponse(response, 400, ".+");
+    }
 }

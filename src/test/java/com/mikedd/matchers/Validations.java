@@ -1,26 +1,28 @@
 package com.mikedd.matchers;
 
 import com.google.common.collect.ImmutableSet;
+import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import java.util.Set;
+import java.util.logging.Logger;
 
 import static co.unruly.matchers.Java8Matchers.where;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
 
 public class Validations {
     final static Set<String> SUITS = ImmutableSet.of("HEARTS", "DIAMONDS", "SPADES", "CLUBS");
     final static Set<String> VALUES = ImmutableSet.of("2", "3", "4", "5", "6", "7", "8", "9", "10", "JACK", "QUEEN", "KING", "ACE");
     final static UrlValidator urlValidator = new UrlValidator();
-
+    private final static Logger LOGGER = Logger.getLogger(Validations.class.getSimpleName());
 
     public static String getSuitCode(String suit) {
         return SUITS.stream().filter(s -> s.equals(suit))
                 .findFirst()
-                .orElseThrow(() -> new Error("Invalid suit:" + suit)).substring(0,1);
+                .orElseThrow(() -> new Error("Invalid suit:" + suit)).substring(0, 1);
 
     }
 
@@ -29,10 +31,10 @@ public class Validations {
         return VALUES.stream().filter(s -> s.equals(value))
                 .findFirst()
                 .orElseThrow(() -> new Error("Invalid value:" + value))
-                .substring(0,1).replace("1", "0");
+                .substring(0, 1).replace("1", "0");
     }
 
-    public static String getCardCode(String value, String suit){
+    public static String getCardCode(String value, String suit) {
         return getValueCode(value) + getSuitCode(suit);
     }
 
@@ -67,5 +69,12 @@ public class Validations {
         assertThat(image, where(Validations::isImageURL));
         // This way we check value, suit and code all at once
         assertThat(code, equalTo(getCardCode(value, suit)));
+    }
+
+    public static void validateErrorResponse(Response response, int expectedCode, String pattern) {
+        LOGGER.info("Validating response - expecting HTTP code: " + expectedCode + " and body matching regex pattern [" + pattern + "]");
+        LOGGER.info("Response is:" + response.asString());
+        assertThat(response.statusCode(), is(expectedCode));
+        assertThat(response.body().asString(), matchesPattern(pattern));
     }
 }
