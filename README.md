@@ -6,12 +6,12 @@ Java API tests for a subset of functionality of [deckofcardsapi.com](http://deck
   
   These tests are testing public API of [deckofcardsapi.com](http://deckofcardsapi.com) service according to its documentation.
   
-  Please note, that aspects of implementation, such as headers returned by API, particular error codes are either not
+  Please note, that aspects of implementation, such as headers returned by and/or required to be sent to API endpoints, particular error codes - are either not
    being tested at all (headers), or are tested to minimal extent in accordance with common sense 
    (e.g., in response for incorrectly provided parameters of certain endpoints we may reasonably expect 
    *HTTP 400* error as per HTTP protocol specification).
 
- Other coverage limitations are mentioned in relevant test documentation.
+ Other test coverage limitations are mentioned in relevant test documentation.
     
 ## Design considerations
 
@@ -19,7 +19,7 @@ Because of limited/demo scope of the project, following design decisions / assum
 * No any dependency injection or Enterprise frameworks (Guice, Spring etc.) are used to keep code simple
 * In a larger-scope project, API tests should use robust reporting / logging framework, such as Allure. Here we use SureFire + Java Logging API.
 * All libraries used by tests are located in "test" folder because we don't plan to export them or re-use from other projects.
-
+* We use a lot of "utility" classes with static methods to keep things simple (and because no dependency injection framework is being used). 
 
 ## Failing and Broken tests
 
@@ -35,7 +35,7 @@ Because of limited/demo scope of the project, following design decisions / assum
 
 You will need properly setup JAVA 9 JDK and Maven 3+. All commands below should be run from project base folder.
 
-### Running passing test
+### Running passing tests
 
 By default, only tests that were passing when implemented (regression suite) are being run:
 
