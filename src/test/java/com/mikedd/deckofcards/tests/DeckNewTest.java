@@ -7,7 +7,6 @@ import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.util.Map;
 import java.util.logging.Logger;
@@ -104,8 +103,7 @@ public class DeckNewTest {
     //   documentation). You can still run them with relevant maven profile
 
     @Test
-    @EnabledIfSystemProperty(
-            named = "runDisabled", matches = "true")
+    @Tag("broken")
     @DisplayName("POST deck/new with no cards: As of 24 Apr 2020 commit, test is failing with HTTP 301")
     public void testPostNewDeckWithNoParams() {
         validateNewDeckResponse(
@@ -117,7 +115,7 @@ public class DeckNewTest {
 
 
     @Test
-    @EnabledIfSystemProperty(named = "runDisabled", matches = "true")
+    @Tag("broken")
     @DisplayName("POST deck/new with jokers enabled: As of 24 Apr 2020 commit, test is failing with HTTP 403: CSRF verification failed. Request aborted.")
     public void testPostNewDeckWithJokersEnabled() {
         validateNewDeckResponse(
@@ -128,7 +126,7 @@ public class DeckNewTest {
     }
 
     @Test
-    @EnabledIfSystemProperty(named = "runDisabled", matches = "true")
+    @Tag("broken")
     @DisplayName("POST deck/new with jokers excplicitly disabled: As of 24 Apr 2020 commit, test is failing with HTTP 403: CSRF verification failed. Request aborted.")
     public void testPostNewDeckWithJokersExplicitlyDisabled() {
         validateNewDeckResponse(

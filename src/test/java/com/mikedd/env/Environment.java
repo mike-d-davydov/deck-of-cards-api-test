@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- *
+ * Helper class, providing access to environment-sensitive properties.
+ * At the moment, only such property is [baseUrl]
  */
 public class Environment {
     static Properties props = new Properties();
@@ -17,12 +18,17 @@ public class Environment {
             propertyFileName = propertyFileName == null ? "prod.properties" : propertyFileName;
 
             props.load(Environment.class.getClassLoader().getResourceAsStream(propertyFileName));
-        } catch (IOException ioe){
+        } catch (IOException ioe) {
             throw new RuntimeException("Failed to load property file", ioe);
         }
     }
 
-    public static String getBaseUrl(){
+    /**
+     * Base URL of DeckOfCards API
+     *
+     * @return base URL as string
+     */
+    public static String getBaseUrl() {
         return props.get("baseUrl").toString();
     }
 

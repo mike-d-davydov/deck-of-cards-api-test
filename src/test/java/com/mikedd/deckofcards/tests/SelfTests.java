@@ -8,9 +8,11 @@ import java.util.logging.Logger;
 import static com.mikedd.env.Environment.getBaseUrl;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-
-public class SelfTest {
-    private final static Logger LOGGER = Logger.getLogger(SelfTest.class.getSimpleName());
+/**
+ * This class contains tests used for debug purposes while developing
+ */
+public class SelfTests {
+    private final static Logger LOGGER = Logger.getLogger(SelfTests.class.getSimpleName());
 
     @Test
     public void testPropertyFileLoaded() {
