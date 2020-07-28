@@ -11,7 +11,12 @@ public class Environment {
 
     static {
         try {
-            props.load(Environment.class.getClassLoader().getResourceAsStream("environment.properties"));
+            String propertyFileName = System.getProperty("configFile");
+            System.out.println("File path is:" + propertyFileName);
+            // So that it would work directly from IDEA too
+            propertyFileName = propertyFileName == null ? "prod.properties" : propertyFileName;
+
+            props.load(Environment.class.getClassLoader().getResourceAsStream(propertyFileName));
         } catch (IOException ioe){
             throw new RuntimeException("Failed to load property file", ioe);
         }
