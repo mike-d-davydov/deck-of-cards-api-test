@@ -58,7 +58,7 @@ mvn test -P inlclude-failing
 Maven profile "all-tests" controls allow running all tests, including failing and broken:
 
 ```
-mvn test -P inlclude-failing 
+mvn test -P all-tests 
 ``` 
 
 ### Running against localhost

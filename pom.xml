@@ -12,6 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.jupiter.version>5.5.2</junit.jupiter.version>
         <excluded.tags>failing, broken</excluded.tags>
+        <configuration.filename>prod.properties</configuration.filename>
     </properties>
 
     <profiles>
